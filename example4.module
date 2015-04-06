@@ -17,7 +17,7 @@ function example4_api() {
 // views/example4.views.inc //
 
 /**
- * Gigjobber reports views.
+ * Example reports views.
  */
 
 /**
