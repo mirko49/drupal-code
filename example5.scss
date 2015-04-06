@@ -1,0 +1,101 @@
+// General bank nodes
+.node-type-general-bank{
+  .bank-top--container{
+    @include clearfix;
+    background : url($img_path + "l-hero--big.png") $top-content--bg no-repeat left center;
+    @include grid-row(nest-collapse);
+    p{
+      font-size: 18px;
+    }
+  }
+  .bank-top--image{
+    text-align:center;
+    margin: $space 0;
+  }
+  @media #{$medium-up} { 
+    .bank-top--title{
+      @include grid-column(6,$float:left,$collapse:true);
+      margin: 3.5em 0 1em;
+      padding-right: 35px;
+    }
+    .bank-top--info{
+      @include grid-column(6,$float:left,$collapse:true);
+      margin: 1em 0;
+      padding-right: 55px;
+      p{
+        line-height: 1.8em;
+      }
+    }
+    .bank-top--image{
+      img{
+        width: 100%;
+      }
+      @include grid-column(6, $float:right, $collapse:true);
+        margin: $space*2 0;
+    }
+  }
+  @media #{$large-up} { 
+    .bank-top--title{
+     margin: 5em 0 1em;
+     padding-right: 55px;
+    }
+    .bank-top--info{
+      p{
+        line-height: 2.3em;
+      }
+    }
+    .bank-top--image{
+    }
+  }
+}
+
+SMACSS structure
+├── abstractions
+│   ├── _mixins.scss
+│   └── README.md
+├── base
+│   ├── _forms.scss
+│   ├── _lists.scss
+│   ├── _media.scss
+│   ├── _tables.scss
+│   └── _typography.scss
+├── components
+│   ├── _banners-front.scss
+│   ├── blocks
+│   │   ├── _bloques-planes.scss
+│   │   ├── _bloques-second-sidebar.scss
+│   │   ├── _carrousel-canales.scss
+│   │   ├── _carrousel-vod.scss
+│   │   ├── _contador-mundial.scss
+│   │   ├── _logo.scss
+│   │   ├── _quick-tabs.scss
+│   │   ├── _search.scss
+│   │   ├── _user-tools.scss
+│   │   └── _widgets.scss
+│   ├── content_types
+│   │   ├── _sliders.scss
+│   │   └── _vod.scss
+│   ├── navigation
+│   │   ├── _footer.scss
+│   │   ├── _main-menu.scss
+│   │   ├── _navigation.scss
+│   │   ├── _responsive.scss
+│   │   └── _superfish.scss
+│   ├── pages
+│   │   ├── _contact.scss
+│   │   ├── _about_us.scss
+│   ├── regions
+│   │   ├── _footer.scss
+│   │   ├── _header.scss
+│   │   ├── _second-sidebar.scss
+│   │   ├── _topbar.scss
+├── layouts
+│   └── co_page
+│       └── co_page.layout.scss
+└── variables
+    ├── _colors.scss
+    ├── _typography.scss
+    └── _utils.scss
+
+
+

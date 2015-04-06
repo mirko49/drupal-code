@@ -1,0 +1,169 @@
+<?php
+/**
+ * Implements hook_block_info().
+ */
+function example1_block_info() {
+  $blocks['example1_submissions'] = array(
+    'info' => 'Questionnaire  submissions',
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function example1_block_view($delta = '') {
+  switch ($delta) {
+    case 'example1_submissions':
+      $block['subject'] = t('Questionnaire submissions');
+      $block['content'] = example1_submissions($delta);
+      break;
+  }
+
+  return $block;
+}
+
+
+/**
+ * Implements hook_libraries_info().
+ */
+function example1_libraries_info() {
+  $libraries['d3js'] = array(
+    'name' => 'D3.js',
+    'vendor url' => 'http://d3js.org/',
+    'download url' => 'https://github.com/mbostock/d3/releases/download/v3.4.11/d3.zip',
+    'version callback' => '_example1_libraries_version',
+    'files' => array(
+      'js' => array(
+        'd3.min.js',
+      ),
+    ),
+  );
+  $libraries['c3js'] = array(
+    'name' => 'C3.js',
+    'vendor url' => 'http://c3js.org/',
+    'download url' => 'https://github.com/masayuki0812/c3/archive/master.zip',
+    'version callback' => '_example1_libraries_version',
+    'files' => array(
+      'js' => array(
+        'c3.min.js',
+      ),
+      'css' => array(
+        'c3.css',
+      ),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_form().
+ */
+function example1_filters_form() {
+  $form['date'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Select dates',
+  );
+  $form['date']['date_start'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('Start date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d'),
+  );
+  $form['date']['date_end'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('End date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d'),
+  );
+  $form['date']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Filter',
+    '#ajax' => array(
+      'callback' => 'example1_ajax_update',
+      'wrapper' => 'stats-submissions-wrapper',
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Callback form submit.
+ *
+ * @See example1_filters_form
+ */
+function example1_ajax_update($form, $form_state) {
+  $data = array(
+    'graphsData' => (object) array(
+      'data' => example1_get_submissions_range($form_state['values']['date_start'], $form_state['values']['date_end']),
+      'id' => 'stats-submissions',
+      'dateFormat' => '%b %d',
+    ),
+    'formState' => $form_state,
+  );
+  drupal_add_js(array('cmpData' => $data), 'setting');
+  return '<div id="stats-submissions-wrapper"><div id="stats-submissions"></div></div>';
+}
+
+/**
+ * Gets submissions 
+ */
+function example1_get_submissions() {
+  $subs = &drupal_static(__FUNCTION__);
+  if (!isset($subs)) {
+    $query = db_select('example1_questionnaire_entry', 'a');
+    $query->fields('a');
+    $query->orderBy('date', 'DESC');
+    $subs = $query->execute()->fetchAll();
+  }
+  return $subs;
+}
+
+/**
+ * Gets submissions range
+ */
+function example1_get_submissions_range($date_start = '', $date_end = '') {
+  if (!$date_start) $date_start = strtotime('now midnight');
+  else $date_start = strtotime($date_start . ' midnight');
+  if (!$date_end) $date_end = strtotime('now midnight') + (60 * 60 * 24);
+  else $date_end = strtotime($date_end . ' midnight') + (60 * 60 * 24);
+
+  $format = "F j, Y H:m";
+  // $c_format = "%H:%M";
+  if ($date_end - $date_start >  (72 * 3600)) {
+    $format = "F j, Y";
+    // $c_format = "%b %d";
+    if ($date_end - $date_start > (60 * 24 * 3600)) {
+      $format = "F Y";
+      // $c_format = "%b %d";
+    }
+  }
+
+  $subs = example1_get_submissions();
+  $serie = array();
+  $serie_x = array('x');
+  $serie_y = array('y');
+  foreach ($subs as $sub) {
+    if ($sub->date >= $date_end) continue;
+    if ($sub->date < $date_start) break;
+    $group_date = strtotime(date($format, $sub->date));
+    $serie_x[$group_date] = $group_date * 1000;
+    if (isset($serie_y[$group_date])) {
+      $serie_y[$group_date] = $serie_y[$group_date] + 1;
+    }
+    else {
+      $serie_y[$group_date] = 1;
+    }
+  }
+  ksort($serie_x);
+  ksort($serie_y);
+  $serie_x = array_values($serie_x);
+  $serie_y = array_values($serie_y);
+
+  return array(
+    'x' => 'x',
+    'columns' => array($serie_x, $serie_y),
+  );
+}
+

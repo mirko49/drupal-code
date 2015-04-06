@@ -1,0 +1,114 @@
+/*******************************************************************************
+ * _mixins.scss
+ *
+ * Mixins
+ ******************************************************************************/
+
+ @mixin _font-face ($font-family, $file-path, $weight: normal, $style: normal, $asset-pipeline: false ) {
+  @font-face {
+    font-family: $font-family;
+    font-weight: $weight;
+    font-style: $style;
+
+    @if $asset-pipeline == true {
+      src: font-url('#{$file-path}.eot');
+      src: font-url('#{$file-path}.eot?#iefix')          format('embedded-opentype'),
+           font-url('#{$file-path}.woff')                format('woff'),
+           font-url('#{$file-path}.ttf')                 format('truetype'),
+           font-url('#{$file-path}.svg##{$font-family}') format('svg');
+    } @else {
+      src: url('#{$file-path}.eot');
+      src: url('#{$file-path}.eot?#iefix')               format('embedded-opentype'),
+           url('#{$file-path}.woff')                     format('woff'),
+           url('#{$file-path}.ttf')                      format('truetype'),
+           url('#{$file-path}.svg##{$font-family}')      format('svg');
+    }
+  }
+}
+
+
+//Clean list
+@mixin _clean-list {
+  list-style-type: none;
+  li {
+    float: left;
+    list-style-type: none;
+    list-style-image: none;
+  }
+}
+
+
+@mixin _button ($button-text--color, $gray--color, $gray--color-2) {
+  color: $button-text--color;
+  &:link{
+    color:$button-text--color;
+  }
+
+
+  border: 1px solid $gray--color-2;
+  @include border-radius (5px);
+  @include background-clip(padding-box);
+  background-color: $gray--color;
+  @include background-image(linear-gradient(top, $gray--color 0%, $gray--color-2 100%));
+
+  @include inline-block;
+  font-weight: bold;
+
+  padding: 0.7em 0.5em;
+  text-decoration:none;
+  @include text-shadow(0 1px 1px $gray--color-2);
+
+	@include breakpoint($desk) { 
+		padding: 0.7em 1.2em;
+	}
+
+  &:hover {
+    @include background-image(linear-gradient(top, darken($gray--color,5) 0%, darken($gray--color-2,5) 100%));
+    border-color: darken($gray--color-2,5);
+  }
+
+  &:active {
+    @include background-image(linear-gradient(top, darken($gray--color,5) 0%, darken($gray--color-2,5) 100%));
+    @include box-shadow(inset 0 0 8px darken($gray--color-2,15));
+    border-color: darken($gray--color-2,10);
+  }
+}
+
+%button-green{
+	@include _button($button-text--color, $green--color, $green--color-2);
+}
+%button-blue{
+	@include _button($button-text--color,$blue--color, $blue--color-2);
+}
+%button-yellow{
+	@include _button($button-text--color__alt, $yellow--color, $yellow--color-2);
+}
+
+@mixin add-image-before($image,$posx:0, $posy:0, $width: 20px, $height:$width, $top: 0, $left: 0, $padding: $width + 5px) {
+  display:block;
+  min-height: $height;
+  padding-left: $padding;
+  position:relative;
+  &:before{
+    background : url($img_path + $image) no-repeat $posx $posy;
+    width: $width;
+    height: $height;
+    display: block;
+    position: absolute;
+    content: " ";
+    top: $top;
+    left: $left;
+  }
+  // iexplorer8
+  .lt-ie9 &{
+    min-height: 0;
+  }
+}
+@mixin collapse-right($margin : 1.25rem){
+  padding-right: 0;
+}
+@mixin collapse-left($margin : 1.25rem){
+  margin-left: -$margin;
+}
+
+

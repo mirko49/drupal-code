@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * Implements hook_theme() .
+ */
+function example3_theme() {
+  return array(
+    'online_bank_box' => array(
+      'template' => 'templates/online-bank-box',
+      'arguments' => array('variables' => NULL),
+    ),
+  );
+}
+
+
+/**
+ * Implement hook_block_info.
+ */
+function example3_block_info() {
+  $blocks = array();
+  $blocks['example3_personal'] = array(
+    'info' => t('Banking Personal'),
+  );
+  $blocks['example3_corporate'] = array(
+    'info' => t('Banking Corporate'),
+  );
+  $blocks['example3_home'] = array(
+    'info' => t('Banking Home'),
+  );
+  return $blocks;
+}
+
+/**
+ * Returns Banking content links.
+ */
+function show_links($option_mode) {
+  
+  global $language;
+  
+  $block_section = $option_mode;
+  $options_banking = get_onlinebanking_variables();
+  
+  $translations = translation_path_get_translations("node/8");
+  $options_banking[0]['contact-us-url'] = $translations[$language->language];
+
+  switch ($option_mode) {
+    case 'home':
+      $content = theme('online_bank_box', array('href' => $options_banking[0]));
+      break;
+
+    case 'personal':
+      $href = $options_banking[0]['personal'];
+      $bank_class = "online-banking-personal--button";
+      break;
+
+    case 'corporate':
+      $href = $options_banking[0]['corporate'];
+      $bank_class = "online-banking-corporate--button";
+      break;
+
+  }
+
+  /* Verifiying if maintenance mode is enabled, 1 means disabled */
+  if ($block_section != 'home') {
+    if ($options_banking[0]['maintenance-mode'] == '1') {
+      $content = theme_container(array(
+        'element' => array(
+          '#children' => t($options_banking[0]['maintenance']),
+          '#attributes' => array(
+            'class' => array('offline-banking'),
+          ),
+        ),
+      ));
+    }
+    else {
+      $content = l(
+        t('Online Banking'),
+       $href,
+        array(
+          'attributes' => array(
+            'target'=>'_blank',
+            'class' => array($bank_class, 'sidebar--button', 'button'),
+          ),
+        )
+      );
+    }
+  }
+
+  return $content;
+}
+
+/**
+ * Implement hook_block_view.
+ */
+function example3_block_view($delta = '') {
+  // The $delta parameter tells us which block is being requested.
+  
+  $block = array();
+  switch ($delta) {
+    case 'example3_personal':
+      $block['subject'] = t('Online Personal Banking');
+      $block['content'] = show_links('personal');
+      break;
+
+    case 'example3_corporate':
+      $block['subject'] = t('Online Corporate Banking');
+      $block['content'] = show_links('corporate');
+      break;
+
+    case 'example3_home':
+      $block['subject'] = t('Online Home');
+      $block['content'] = show_links('home');
+      break;
+
+  }
+  
+  return $block;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+/* tpl.php */
+<div class="online-banking--title">
+  <h3> 
+  <?php print(t('Online Banking')); ?>
+  </h3>
+</div>
+<div class="online-banking--wrapper">
+  <?php if($href['maintenance-mode'] == '1'): ?>
+    <div class="offline-banking--text">
+      <?php print(t($href['maintenance'])); ?>
+    </div>
+  <?php else: ?>
+    <div class="online-banking-personal button sidebar-button online-banking-personal--button"><?php print(l(t('Personal'),$href['personal'],array('attributes' => array('target'=>'_blank')))); ?></div>
+    <div class="online-banking-corporate button sidebar-button online-banking-corporate--button"><?php print(l(t('Corporate'),$href['corporate'],array('attributes' => array('target'=>'_blank')))); ?></div>
+  <?php endif;  ?>
+  <div class="online-banking--help url-links"> <?php print(l(t('Need help?'), $href['contact-us-url'] , array('attributes' => array('target'=>'_blank') ) )); ?> </div>
+  <div class="online-banking--call-us"> <?php print(t('Call Us')); ?> 
+    <span class="url-links mobile-phone"> <a href="tel:+5555555555">5555555555555</a></span>
+    <span class="url-links desktop-phone"> 55555555555</span>
+  </div>
+</div>

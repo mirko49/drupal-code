@@ -1,0 +1,139 @@
+<?php
+/**
+ * Reports module.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function example4_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'example4') . '/views',
+  );
+}
+
+//////////////////////////////////////
+// views/example4.views.inc //
+
+/**
+ * Gigjobber reports views.
+ */
+
+/**
+ * Implements hook_views_data().
+ */
+function example4_data() {
+
+  $data = array();
+  $data['node']['date_difference'] = array(
+    'title' => t('Difference between two dates'),
+    'help' => t('Provides the value of the difference between two dates.'),
+    'field' => array(
+      'handler' => 'example4_handler_date_difference',
+    ),
+  );
+  return $data;
+}
+
+
+//////////////////////////////////////
+// views/example4_handler_date_difference.inc //
+
+<?php
+/**
+ * @file
+ * Definition of mymodule_handler_custom_field.
+ */
+
+/**
+ * Provides a custom views field.
+ */
+class example4_handler_date_difference extends views_handler_field_custom {
+
+  /**
+   * Set options.
+   */
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['date1'] = array('default' => '');
+    $options['date2'] = array('default' => '');
+    return $options;
+  }
+
+  /**
+   * Default options form.
+   */
+  function options_form(&$form, &$form_state) {
+    parent::options_form($form, $form_state);
+    $form['date1'] = array(
+      '#type' => 'select',
+      '#title' => t('Select date 1'),
+      '#options' => array(
+        'created' => t('Created date'),
+        'assigned' => t('Assgined date'),
+        'completed' => t('Completed date'),
+        'paid' => t('Paid date'),
+      ),
+      '#default_value' => $this->options['date1'],
+      '#description' => t('Set one date for the difference.'),
+    );
+    $form['date2'] = array(
+      '#type' => 'select',
+      '#title' => t('Select date 2'),
+      '#options' => array(
+        'created' => t('Created date'),
+        'assigned' => t('Assgined date'),
+        'completed' => t('Completed date'),
+        'paid' => t('Paid date'),
+      ),
+      '#default_value' => $this->options['date2'],
+      '#description' => t('Set one date for the difference.'),
+    );
+  }
+
+  /**
+   * Renders field.
+   */
+  function render($values) {
+
+    switch ($this->options['date1']) {
+      case 'created':
+        $date1 = $values->node_created;
+        break;
+
+      case 'assigned':
+        $date1 = $values->_field_data['nid']['entity']->field_assigned_date['und'][0]['value'];
+
+        break;
+
+      case 'completed':
+        $date1 = $values->_field_data['nid']['entity']->field_task_completed_date['und'][0]['value'];
+        break;
+
+      case 'paid':
+        $date1 = $values->field_invoice_task_node_created;
+        break;
+    }
+    switch ($this->options['date2']) {
+      case 'created':
+        $date2 = $values->node_created;
+        break;
+
+      case 'assigned':
+        $date2 = $values->_field_data['nid']['entity']->field_assigned_date['und'][0]['value'];
+        break;
+
+      case 'completed':
+        $date2 = $values->_field_data['nid']['entity']->field_task_completed_date['und'][0]['value'];
+        break;
+
+      case 'paid':
+        $date2 = $values->field_invoice_task_node_created;
+        break;
+    }
+    $date_difference = dateDiff($date1, $date2, 3);
+    $output = $date_difference;
+    return $output;
+  }
+}
