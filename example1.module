@@ -3,7 +3,7 @@
 /**
  * Implements hook_theme() .
  */
-function example3_theme() {
+function example1_theme() {
   return array(
     'online_bank_box' => array(
       'template' => 'templates/online-bank-box',
@@ -16,15 +16,15 @@ function example3_theme() {
 /**
  * Implements hook_block_info.
  */
-function example3_block_info() {
+function example1_block_info() {
   $blocks = array();
-  $blocks['example3_personal'] = array(
+  $blocks['example1_personal'] = array(
     'info' => t('Banking Personal'),
   );
-  $blocks['example3_corporate'] = array(
+  $blocks['example1_corporate'] = array(
     'info' => t('Banking Corporate'),
   );
-  $blocks['example3_home'] = array(
+  $blocks['example1_home'] = array(
     'info' => t('Banking Home'),
   );
   return $blocks;
@@ -92,22 +92,22 @@ function show_links($option_mode) {
 /**
  * Implements hook_block_view.
  */
-function example3_block_view($delta = '') {
+function example1_block_view($delta = '') {
   // The $delta parameter tells us which block is being requested.
   
   $block = array();
   switch ($delta) {
-    case 'example3_personal':
+    case 'example1_personal':
       $block['subject'] = t('Online Personal Banking');
       $block['content'] = show_links('personal');
       break;
 
-    case 'example3_corporate':
+    case 'example1_corporate':
       $block['subject'] = t('Online Corporate Banking');
       $block['content'] = show_links('corporate');
       break;
 
-    case 'example3_home':
+    case 'example1_home':
       $block['subject'] = t('Online Home');
       $block['content'] = show_links('home');
       break;

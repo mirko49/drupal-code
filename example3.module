@@ -3,8 +3,8 @@
 /**
  * Implements hook_block_info().
  */
-function example1_block_info() {
-  $blocks['example1_submissions'] = array(
+function example3_block_info() {
+  $blocks['example3_submissions'] = array(
     'info' => 'Questionnaire  submissions',
   );
 
@@ -14,11 +14,11 @@ function example1_block_info() {
 /**
  * Implements hook_block_view().
  */
-function example1_block_view($delta = '') {
+function example3_block_view($delta = '') {
   switch ($delta) {
-    case 'example1_submissions':
+    case 'example3_submissions':
       $block['subject'] = t('Questionnaire submissions');
-      $block['content'] = example1_submissions($delta);
+      $block['content'] = example3_submissions($delta);
       break;
   }
 
@@ -29,12 +29,12 @@ function example1_block_view($delta = '') {
 /**
  * Implements hook_libraries_info().
  */
-function example1_libraries_info() {
+function example3_libraries_info() {
   $libraries['d3js'] = array(
     'name' => 'D3.js',
     'vendor url' => 'http://d3js.org/',
     'download url' => 'https://github.com/mbostock/d3/releases/download/v3.4.11/d3.zip',
-    'version callback' => '_example1_libraries_version',
+    'version callback' => '_example3_libraries_version',
     'files' => array(
       'js' => array(
         'd3.min.js',
@@ -45,7 +45,7 @@ function example1_libraries_info() {
     'name' => 'C3.js',
     'vendor url' => 'http://c3js.org/',
     'download url' => 'https://github.com/masayuki0812/c3/archive/master.zip',
-    'version callback' => '_example1_libraries_version',
+    'version callback' => '_example3_libraries_version',
     'files' => array(
       'js' => array(
         'c3.min.js',
@@ -61,7 +61,7 @@ function example1_libraries_info() {
 /**
  * Implements hook_form().
  */
-function example1_filters_form() {
+function example3_filters_form() {
   $form['date'] = array(
     '#type' => 'fieldset',
     '#title' => 'Select dates',
@@ -82,7 +82,7 @@ function example1_filters_form() {
     '#type' => 'submit',
     '#value' => 'Filter',
     '#ajax' => array(
-      'callback' => 'example1_ajax_update',
+      'callback' => 'example3_ajax_update',
       'wrapper' => 'stats-submissions-wrapper',
     ),
   );
@@ -92,12 +92,12 @@ function example1_filters_form() {
 /**
  * Callback form submit.
  *
- * @See example1_filters_form
+ * @See example3_filters_form
  */
-function example1_ajax_update($form, $form_state) {
+function example3_ajax_update($form, $form_state) {
   $data = array(
     'graphsData' => (object) array(
-      'data' => example1_get_submissions_range($form_state['values']['date_start'], $form_state['values']['date_end']),
+      'data' => example3_get_submissions_range($form_state['values']['date_start'], $form_state['values']['date_end']),
       'id' => 'stats-submissions',
       'dateFormat' => '%b %d',
     ),
@@ -110,10 +110,10 @@ function example1_ajax_update($form, $form_state) {
 /**
  * Gets submissions 
  */
-function example1_get_submissions() {
+function example3_get_submissions() {
   $subs = &drupal_static(__FUNCTION__);
   if (!isset($subs)) {
-    $query = db_select('example1_questionnaire_entry', 'a');
+    $query = db_select('example3_questionnaire_entry', 'a');
     $query->fields('a');
     $query->orderBy('date', 'DESC');
     $subs = $query->execute()->fetchAll();
@@ -124,7 +124,7 @@ function example1_get_submissions() {
 /**
  * Gets submissions range
  */
-function example1_get_submissions_range($date_start = '', $date_end = '') {
+function example3_get_submissions_range($date_start = '', $date_end = '') {
   if (!$date_start) $date_start = strtotime('now midnight');
   else $date_start = strtotime($date_start . ' midnight');
   if (!$date_end) $date_end = strtotime('now midnight') + (60 * 60 * 24);
@@ -141,7 +141,7 @@ function example1_get_submissions_range($date_start = '', $date_end = '') {
     }
   }
 
-  $subs = example1_get_submissions();
+  $subs = example3_get_submissions();
   $serie = array();
   $serie_x = array('x');
   $serie_y = array('y');
