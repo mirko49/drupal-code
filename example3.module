@@ -1,142 +1,170 @@
+
 <?php
-
 /**
- * Implements hook_theme() .
+ * Implements hook_block_info().
  */
-function example3_theme() {
-  return array(
-    'online_bank_box' => array(
-      'template' => 'templates/online-bank-box',
-      'arguments' => array('variables' => NULL),
-    ),
+function example1_block_info() {
+  $blocks['example1_submissions'] = array(
+    'info' => 'Questionnaire  submissions',
   );
-}
 
-
-/**
- * Implement hook_block_info.
- */
-function example3_block_info() {
-  $blocks = array();
-  $blocks['example3_personal'] = array(
-    'info' => t('Banking Personal'),
-  );
-  $blocks['example3_corporate'] = array(
-    'info' => t('Banking Corporate'),
-  );
-  $blocks['example3_home'] = array(
-    'info' => t('Banking Home'),
-  );
   return $blocks;
 }
 
 /**
- * Returns Banking content links.
+ * Implements hook_block_view().
  */
-function show_links($option_mode) {
-  
-  global $language;
-  
-  $block_section = $option_mode;
-  $options_banking = get_onlinebanking_variables();
-  
-  $translations = translation_path_get_translations("node/8");
-  $options_banking[0]['contact-us-url'] = $translations[$language->language];
-
-  switch ($option_mode) {
-    case 'home':
-      $content = theme('online_bank_box', array('href' => $options_banking[0]));
-      break;
-
-    case 'personal':
-      $href = $options_banking[0]['personal'];
-      $bank_class = "online-banking-personal--button";
-      break;
-
-    case 'corporate':
-      $href = $options_banking[0]['corporate'];
-      $bank_class = "online-banking-corporate--button";
-      break;
-
-  }
-
-  /* Verifiying if maintenance mode is enabled, 1 means disabled */
-  if ($block_section != 'home') {
-    if ($options_banking[0]['maintenance-mode'] == '1') {
-      $content = theme_container(array(
-        'element' => array(
-          '#children' => t($options_banking[0]['maintenance']),
-          '#attributes' => array(
-            'class' => array('offline-banking'),
-          ),
-        ),
-      ));
-    }
-    else {
-      $content = l(
-        t('Online Banking'),
-       $href,
-        array(
-          'attributes' => array(
-            'target'=>'_blank',
-            'class' => array($bank_class, 'sidebar--button', 'button'),
-          ),
-        )
-      );
-    }
-  }
-
-  return $content;
-}
-
-/**
- * Implement hook_block_view.
- */
-function example3_block_view($delta = '') {
-  // The $delta parameter tells us which block is being requested.
-  
-  $block = array();
+function example1_block_view($delta = '') {
   switch ($delta) {
-    case 'example3_personal':
-      $block['subject'] = t('Online Personal Banking');
-      $block['content'] = show_links('personal');
+    case 'example1_submissions':
+      $block['subject'] = t('Questionnaire submissions');
+      $block['content'] = example1_submissions($delta);
       break;
-
-    case 'example3_corporate':
-      $block['subject'] = t('Online Corporate Banking');
-      $block['content'] = show_links('corporate');
-      break;
-
-    case 'example3_home':
-      $block['subject'] = t('Online Home');
-      $block['content'] = show_links('home');
-      break;
-
   }
-  
+
   return $block;
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-/* tpl.php */
-<div class="online-banking--title">
-  <h3> 
-  <?php print(t('Online Banking')); ?>
-  </h3>
-</div>
-<div class="online-banking--wrapper">
-  <?php if($href['maintenance-mode'] == '1'): ?>
-    <div class="offline-banking--text">
-      <?php print(t($href['maintenance'])); ?>
-    </div>
-  <?php else: ?>
-    <div class="online-banking-personal button sidebar-button online-banking-personal--button"><?php print(l(t('Personal'),$href['personal'],array('attributes' => array('target'=>'_blank')))); ?></div>
-    <div class="online-banking-corporate button sidebar-button online-banking-corporate--button"><?php print(l(t('Corporate'),$href['corporate'],array('attributes' => array('target'=>'_blank')))); ?></div>
-  <?php endif;  ?>
-  <div class="online-banking--help url-links"> <?php print(l(t('Need help?'), $href['contact-us-url'] , array('attributes' => array('target'=>'_blank') ) )); ?> </div>
-  <div class="online-banking--call-us"> <?php print(t('Call Us')); ?> 
-    <span class="url-links mobile-phone"> <a href="tel:+5555555555">5555555555555</a></span>
-    <span class="url-links desktop-phone"> 55555555555</span>
-  </div>
-</div>
+/**
+ * Implements hook_libraries_info().
+ */
+function example1_libraries_info() {
+  $libraries['d3js'] = array(
+    'name' => 'D3.js',
+    'vendor url' => 'http://d3js.org/',
+    'download url' => 'https://github.com/mbostock/d3/releases/download/v3.4.11/d3.zip',
+    'version callback' => '_example1_libraries_version',
+    'files' => array(
+      'js' => array(
+        'd3.min.js',
+      ),
+    ),
+  );
+  $libraries['c3js'] = array(
+    'name' => 'C3.js',
+    'vendor url' => 'http://c3js.org/',
+    'download url' => 'https://github.com/masayuki0812/c3/archive/master.zip',
+    'version callback' => '_example1_libraries_version',
+    'files' => array(
+      'js' => array(
+        'c3.min.js',
+      ),
+      'css' => array(
+        'c3.css',
+      ),
+    ),
+  );
+  return $libraries;
+}
+
+/**
+ * Implements hook_form().
+ */
+function example1_filters_form() {
+  $form['date'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Select dates',
+  );
+  $form['date']['date_start'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('Start date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d'),
+  );
+  $form['date']['date_end'] = array(
+    '#type' => 'date_popup',
+    '#title' => t('End date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d'),
+  );
+  $form['date']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Filter',
+    '#ajax' => array(
+      'callback' => 'example1_ajax_update',
+      'wrapper' => 'stats-submissions-wrapper',
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Callback form submit.
+ *
+ * @See example1_filters_form
+ */
+function example1_ajax_update($form, $form_state) {
+  $data = array(
+    'graphsData' => (object) array(
+      'data' => example1_get_submissions_range($form_state['values']['date_start'], $form_state['values']['date_end']),
+      'id' => 'stats-submissions',
+      'dateFormat' => '%b %d',
+    ),
+    'formState' => $form_state,
+  );
+  drupal_add_js(array('cmpData' => $data), 'setting');
+  return '<div id="stats-submissions-wrapper"><div id="stats-submissions"></div></div>';
+}
+
+/**
+ * Gets submissions 
+ */
+function example1_get_submissions() {
+  $subs = &drupal_static(__FUNCTION__);
+  if (!isset($subs)) {
+    $query = db_select('example1_questionnaire_entry', 'a');
+    $query->fields('a');
+    $query->orderBy('date', 'DESC');
+    $subs = $query->execute()->fetchAll();
+  }
+  return $subs;
+}
+
+/**
+ * Gets submissions range
+ */
+function example1_get_submissions_range($date_start = '', $date_end = '') {
+  if (!$date_start) $date_start = strtotime('now midnight');
+  else $date_start = strtotime($date_start . ' midnight');
+  if (!$date_end) $date_end = strtotime('now midnight') + (60 * 60 * 24);
+  else $date_end = strtotime($date_end . ' midnight') + (60 * 60 * 24);
+
+  $format = "F j, Y H:m";
+  // $c_format = "%H:%M";
+  if ($date_end - $date_start >  (72 * 3600)) {
+    $format = "F j, Y";
+    // $c_format = "%b %d";
+    if ($date_end - $date_start > (60 * 24 * 3600)) {
+      $format = "F Y";
+      // $c_format = "%b %d";
+    }
+  }
+
+  $subs = example1_get_submissions();
+  $serie = array();
+  $serie_x = array('x');
+  $serie_y = array('y');
+  foreach ($subs as $sub) {
+    if ($sub->date >= $date_end) continue;
+    if ($sub->date < $date_start) break;
+    $group_date = strtotime(date($format, $sub->date));
+    $serie_x[$group_date] = $group_date * 1000;
+    if (isset($serie_y[$group_date])) {
+      $serie_y[$group_date] = $serie_y[$group_date] + 1;
+    }
+    else {
+      $serie_y[$group_date] = 1;
+    }
+  }
+  ksort($serie_x);
+  ksort($serie_y);
+  $serie_x = array_values($serie_x);
+  $serie_y = array_values($serie_y);
+
+  return array(
+    'x' => 'x',
+    'columns' => array($serie_x, $serie_y),
+  );
+}
+
